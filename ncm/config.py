@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
 
-from configparser import ConfigParser
+from configparser import ConfigParser,RawConfigParser
 
 # Config key
 _CONFIG_KEY_DOWNLOAD_HOT_MAX = 'download.hot_max'
 _CONFIG_KEY_DOWNLOAD_DIR = 'download.dir'
 _CONFIG_KEY_SONG_NAME_TYPE = 'song.name_type'
 _CONFIG_KEY_SONG_FOLDER_TYPE = 'song.folder_type'
-
+_CONFIG_KEY_COOKIE = 'cookie'
 # Base path
 _CONFIG_MAIN_PATH = os.path.join(os.path.expanduser('~'), '.ncm')
 _CONFIG_FILE_PATH = os.path.join(_CONFIG_MAIN_PATH, 'ncm.ini')
@@ -20,25 +20,28 @@ DOWNLOAD_HOT_MAX = DOWNLOAD_HOT_MAX_DEFAULT
 DOWNLOAD_DIR = ''
 SONG_NAME_TYPE = 1
 SONG_FOLDER_TYPE = 1
-
+COOKIE = 'appver=2.0.2; _ntes_nuid={}; NMTID={}'.format(
+    ''.join('a' for _ in range(32)),
+    ''.join('b' for _ in range(32)))
 
 def load_config():
     if not os.path.exists(_CONFIG_FILE_PATH):
         init_config_file()
 
-    cfg = ConfigParser()
+    cfg = RawConfigParser()
     cfg.read(_CONFIG_FILE_PATH)
 
     global DOWNLOAD_HOT_MAX
     global DOWNLOAD_DIR
     global SONG_NAME_TYPE
     global SONG_FOLDER_TYPE
+    global COOKIE
 
     DOWNLOAD_HOT_MAX = cfg.getint('settings', _CONFIG_KEY_DOWNLOAD_HOT_MAX)
     DOWNLOAD_DIR = cfg.get('settings', _CONFIG_KEY_DOWNLOAD_DIR)
     SONG_NAME_TYPE = cfg.getint('settings', _CONFIG_KEY_SONG_NAME_TYPE)
     SONG_FOLDER_TYPE = cfg.getint('settings', _CONFIG_KEY_SONG_FOLDER_TYPE)
-
+    COOKIE = cfg.get('settings', _CONFIG_KEY_COOKIE)
 
 def init_config_file():
     default_config = '''\
@@ -75,12 +78,19 @@ def init_config_file():
     # 3: download.dir/artist_name/album_name
     #--------------------------------------
     {key_folder_type} = 1
+    
+    #--------------------------------------
+    #Your Pirate COOKIE
+    #--------------------------------------
+    {key_cookie} = {value_cookie}
     '''.format(key_max=_CONFIG_KEY_DOWNLOAD_HOT_MAX,
                value_max=DOWNLOAD_HOT_MAX_DEFAULT,
                key_dir=_CONFIG_KEY_DOWNLOAD_DIR,
                value_dir=_DEFAULT_DOWNLOAD_PATH,
                key_name_type=_CONFIG_KEY_SONG_NAME_TYPE,
-               key_folder_type=_CONFIG_KEY_SONG_FOLDER_TYPE)
+               key_folder_type=_CONFIG_KEY_SONG_FOLDER_TYPE,
+               key_cookie=_CONFIG_KEY_COOKIE,
+               value_cookie=COOKIE)
 
     if not os.path.exists(_CONFIG_MAIN_PATH):
         os.makedirs(_CONFIG_MAIN_PATH)

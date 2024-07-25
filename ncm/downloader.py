@@ -43,6 +43,15 @@ def download_song_by_song(song, download_folder, sub_folder=True, program=False)
     }
     song_file_name = switcher_song.get(config.SONG_NAME_TYPE, song_file_name)
 
+    # update lyric file name by config
+    lyric_file_name = '{}.lrc'.format(song_name)
+    switcher_lyric = {
+        1: lyric_file_name,
+        2: '{} - {}.lrc'.format(artist_name, song_name),
+        3: '{} - {}.lrc'.format(song_name, artist_name)
+    }
+    lyric_file_name = switcher_lyric.get(config.SONG_NAME_TYPE, song_file_name)
+    
     # update song folder name by config, if support sub folder
     if sub_folder:
         switcher_folder = {
@@ -54,6 +63,9 @@ def download_song_by_song(song, download_folder, sub_folder=True, program=False)
     else:
         song_download_folder = download_folder
 
+    # download lyric
+    save_lyric(api.get_lyric(song_id), lyric_file_name, song_download_folder)
+    
     # download song
     if program:
         song_url = api.get_program_url(song, level="standard")
@@ -94,6 +106,14 @@ def download_song_by_song(song, download_folder, sub_folder=True, program=False)
     os.remove(cover_file_path)
 
 
+def save_lyric(content, file_name, folder):
+    if not content:
+        return False
+    file_path = os.path.join(folder, file_name)
+    with open(file_path, 'w') as file:
+        file.write(content)
+    print('Download {}'.format(file_name))
+    return True
 def download_file(file_url, file_name, folder):
     if not os.path.exists(folder):
         os.makedirs(folder)

@@ -10,7 +10,8 @@ from ncm.constants import get_song_url
 from ncm.constants import get_album_url
 from ncm.constants import get_artist_url
 from ncm.constants import get_playlist_url
-
+from ncm.constants import get_lyirc_url
+from ncm.constants import csrf
 
 class CloudApi(object):
 
@@ -62,7 +63,7 @@ class CloudApi(object):
         :return:
         """
         url = get_program_url(program_id)
-        csrf = ''
+        # csrf = '0117c5913dbca90b198e646a448d85fa'
         result = self.post_request(url, {'id': program_id, 'csrf_token': csrf})
         return result['program']
 
@@ -95,11 +96,21 @@ class CloudApi(object):
         :return:
         """
         url = song_download_url
-        csrf = ''
+        # csrf = '0117c5913dbca90b198e646a448d85fa'
         params = {'ids': [song_id], 'br': bit_rate, 'csrf_token': csrf}
         result = self.post_request(url, params)
         song_url = result['data'][0]['url']
         return song_url
+
+    def get_lyric(self, song_id):
+        """
+        Get lyric
+        :param song_id:
+        :return:
+        """
+        url = get_lyirc_url(song_id)
+        result = self.get_request(url)
+        return result['lrc']['lyric']
 
     def get_hot_songs(self, artist_id):
         """
